@@ -25,9 +25,17 @@ void toggle_leds(){
 	}
 }
 
-int main() {
-    printf("mainfil start");
+//funksjon gitt av oppgavetekst
+ssize_t _write(int fd, const void *buf, size_t count){
+	char * letter = (char *)(buf);
+	for(int i = 0; i < count; i++){
+		uart_send(*letter);
+		letter++;
+	}
+	return count;
+}
 
+int main() {
     // Configure LED Matrix
 	for(int i = 4; i <= 15; i++){
 		GPIO->DIRSET = (1 << i);
@@ -48,6 +56,11 @@ int main() {
 
 	uart_init();
 
+	//skriver bare ut i det vi kjører make flash, 
+	//så blir ikke skrevet ut når vi kjører picocom 
+	//fordi da har vi allerede sendt alt til microbiten for "lenge" siden
+	iprintf("Norway has %d counties.\n\r", 18); 
+
 
 	while(1){
 
@@ -56,6 +69,7 @@ int main() {
 
 		if(uart_read() != '\0'){
 			toggle_leds();
+			
 		}
 
 
