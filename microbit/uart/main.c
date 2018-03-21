@@ -3,12 +3,25 @@
 #include <stdio.h>
 
 
-int toggle_leds(){
-	for(int i = 4; i <= 12; i++){
-		for(int j = 13; j<= 15;j++){
-			GPIO->OUTCLR = (1 << i);
-			GPIO->OUTSET = (1 << j);
+void toggle_leds(){
+	static int ledsOn;
+	if(ledsOn){ //turn off leds
+		for(int i = 4; i <= 12; i++){
+			for(int j = 13; j<= 15;j++){
+				GPIO->OUTSET = (1 << i);
+				GPIO->OUTCLR = (1 << j);
+			}
 		}
+		ledsOn = 0;
+	}
+	else{ //turn on leds
+		for(int i = 4; i <= 12; i++){
+			for(int j = 13; j<= 15;j++){
+				GPIO->OUTCLR = (1 << i);
+				GPIO->OUTSET = (1 << j);
+			}
+		}
+		ledsOn = 1;
 	}
 }
 
@@ -41,7 +54,9 @@ int main() {
 		int buttonA = !((GPIO->IN)&(1<<buttonPinA));
 		int buttonB = !((GPIO->IN)&(1<<buttonPinB));
 
-		if(uart_read() != '\0')
+		if(uart_read() != '\0'){
+			toggle_leds();
+		}
 
 
 		if(buttonA){
