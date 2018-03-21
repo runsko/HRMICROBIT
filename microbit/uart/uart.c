@@ -45,16 +45,15 @@ typedef struct {
     volatile uint32_t CONFIG;
 } NRF_UART_REG;
 
-void uart_init(){
+void uart_init(){ //sett på av studass -> good
     int TXD_pin = 24;
     int RXD_pin = 25;
     GPIO->PIN_CNF[TXD_pin] = 1; //output
 	GPIO->PIN_CNF[RXD_pin] = 0; //input
     UART->BAUDRATE = 0x00275000;
-    //UART->CONFIG = (1 << 0); for å fortelle at vi ikke har CTS og RTS? flow control på?
 
-    UART->ENABLE = 0x4;
-    UART->STARTRX = (1 << 0);
+    UART->ENABLE = 4;
+    UART->STARTRX = 1;
 
     UART->PSELRTS = 0xFFFFFFFF; //Disconnect
     UART->PSELCTS = 0xFFFFFFFF; //Disconnect
@@ -62,20 +61,20 @@ void uart_init(){
     UART->PSELRXD = RXD_pin;
 }
 
-void uart_send(char letter){
-    UART->STARTTX = (1 << 0); //Kan man bare sette =1?
-    UART->TXDRDY = 0; // eller 1?
+void uart_send(char letter){ //sett på av studass -> good
+    UART->STARTTX = 1;
     UART->TXD = letter;
     while(!UART->TXDRDY);
+    UART->TXDRDY = 0;
     UART->STOPTX = 1;
 }
 
-char uart_read(){
+
+char uart_read(){ //sett på av studass -> good
     if(UART->RXDRDY){
         UART->RXDRDY = 0;
         UART->STARTRX = 1;
         char rx = UART->RXD;
-        //UART->STOPRX = 1; skal ikke ha denne?
         return rx;
     }
     return '\0';

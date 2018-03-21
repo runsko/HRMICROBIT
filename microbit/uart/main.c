@@ -1,5 +1,16 @@
 #include "uart.h"
+#include "gpio.h"
 #include <stdio.h>
+
+
+int toggle_leds(){
+	for(int i = 4; i <= 12; i++){
+		for(int j = 13; j<= 15;j++){
+			GPIO->OUTCLR = (1 << i);
+			GPIO->OUTSET = (1 << j);
+		}
+	}
+}
 
 int main() {
     printf("mainfil start");
@@ -29,6 +40,9 @@ int main() {
 
 		int buttonA = !((GPIO->IN)&(1<<buttonPinA));
 		int buttonB = !((GPIO->IN)&(1<<buttonPinB));
+
+		if(uart_read() != '\0')
+
 
 		if(buttonA){
             uart_send('A');
