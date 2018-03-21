@@ -5,12 +5,14 @@
 #define UART ((NRF_UART_REG*)0x40002000)
 
 typedef struct {
+    //tasks
     volatile uint32_t STARTRX;
     volatile uint32_t STOPRX;
     volatile uint32_t STARTTX;
     volatile uint32_t STOPTX;
     volatile uint32_t RESERVED0[3];
     volatile uint32_t SUSPEND;
+    //Events
     volatile uint32_t RESERVED1[56];
     volatile uint32_t CTS;
     volatile uint32_t NCTS;
@@ -21,6 +23,7 @@ typedef struct {
     volatile uint32_t ERROR;
     volatile uint32_t RESERVED4[7];
     volatile uint32_t RXTO;
+    //Registers
     volatile uint32_t RESERVED5[110];
     volatile uint32_t INTEN;
     volatile uint32_t INTENSET;
@@ -48,13 +51,32 @@ void uart_init(){
     GPIO->PIN_CNF[TXD_pin] = 1; //output
 	GPIO->PIN_CNF[RXD_pin] = 0; //input
     UART->BAUDRATE = 0x00275000;
-    UART->CONFIG = (1 << 0);
+    //UART->CONFIG = (1 << 0); for å fortelle at vi ikke har CTS og RTS? flow control på?
 
     UART->ENABLE = 0x4;
     UART->STARTRX = (1 << 0);
+
+    UART->PSELRTS = 0xFFFFFFFF; //Disconnect
+    UART->PSELCTS = 0xFFFFFFFF; //Disconnect
+    UART->PSELTXD = TXD_pin;
+    UART->PSELRXD = RXD_pin;
 }
 
 void uart_send(char letter){
-    //noe med TXDRDY 
-    //while noe med TXD? <4?
+    UART->STARTTX = (1 << 0); //Kan man bare sette =1?
+    UART->TXDRDY = 0; // eller 1?
+    UART->TXD = letter;
+    while(!UART->TXDRDY);
+    UART->STOPTX = 1;
+}
+
+char uart_read(){
+    if(UART->RXDRDY){
+        UART->RXDRDY = 0;
+        UART->STARTRX = 1;
+        char rx = UART->RXD;
+        //UART->STOPRX = 1; skal ikke ha denne?
+        return rx;
+    }
+    return '\0';
 }
