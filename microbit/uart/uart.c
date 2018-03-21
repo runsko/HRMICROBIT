@@ -53,3 +53,8 @@ void uart_init(){
     UART->ENABLE = 0x4;
     UART->STARTRX = (1 << 0);
 }
+
+void uart_send(char letter){
+    //noe med TXDRDY 
+    //while noe med TXD? <4?
+}
