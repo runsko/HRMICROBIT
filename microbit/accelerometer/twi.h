@@ -1,6 +1,7 @@
 #ifndef TWI_H
 #define TWI_H
 #include <stdint.h>
+#include <stdlib.h>
 
 void twi_init();
 
